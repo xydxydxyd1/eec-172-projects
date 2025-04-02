@@ -92,6 +92,7 @@ unsigned char g_ucSW2Pin,g_ucSW3Pin;
 
 #define GPIO_SW2 22
 #define GPIO_SW3 13
+#define FRAME_DELAY 5000000
 
 void (*current_routine)(void);
 typedef enum
@@ -136,16 +137,36 @@ Event GetEvent()
     return NOP;
 }
 
+void
+LEDDisplayNumber(char num)
+{
+    GPIO_IF_LedOff(MCU_ALL_LED_IND);
+    if (num & 1 == 1)
+    {
+        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
+    }
+    num >>= 1;
+    if (num & 1 == 1)
+    {
+        GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
+    }
+    num >>= 1;
+    if (num & 1 == 1)
+    {
+        GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
+    }
+    num >>= 1;
+}
+
 void LEDBlinkyRoutine()
 {
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
-    int delay = 1000000;
     Event event = NOP;
     for (; event == NOP || event == BLINKY; event = GetEvent())
     {
-        MAP_UtilsDelay(delay);
+        MAP_UtilsDelay(FRAME_DELAY);
         GPIO_IF_LedOn(MCU_ALL_LED_IND);
-        MAP_UtilsDelay(delay);
+        MAP_UtilsDelay(FRAME_DELAY);
         GPIO_IF_LedOff(MCU_ALL_LED_IND);
     }
 }
@@ -153,9 +174,12 @@ void LEDBlinkyRoutine()
 void CountRoutine()
 {
     Event event = NOP;
+    char num = 0;
     for (; event == NOP || event == COUNT; event = GetEvent())
     {
-        Message("COUNT\r\n");
+        LEDDisplayNumber(num);
+        MAP_UtilsDelay(FRAME_DELAY);
+        num++;
     }
 }
 
