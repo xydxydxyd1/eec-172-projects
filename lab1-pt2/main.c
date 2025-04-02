@@ -86,6 +86,14 @@ extern void (* const g_pfnVectors[])(void);
 #if defined(ewarm)
 extern uVectorEntry __vector_table;
 #endif
+
+void (*current_routine);
+typedef enum
+{
+    NOP,
+    BLINKY,
+    COUNT,
+} Event;
 //*****************************************************************************
 //                 GLOBAL VARIABLES -- End
 //*****************************************************************************
@@ -100,6 +108,20 @@ static void BoardInit(void);
 //*****************************************************************************
 //                      LOCAL FUNCTION DEFINITIONS                         
 //*****************************************************************************
+
+//*****************************************************************************
+//
+//! If no event message receive, return 0. Otherwise, return event.
+//!
+//! \param None
+//!
+//! \return Event code
+//
+//*****************************************************************************
+Event GetEvent()
+{
+    return NOP;
+}
 
 //*****************************************************************************
 //
@@ -122,7 +144,7 @@ void LEDBlinkyRoutine()
     // The values driven are as required by the LEDs on the LP.
     //
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
-    while(1)
+    while(GetEvent() == NOP)
     {
         MAP_UtilsDelay(8000000);
         GPIO_IF_LedOn(MCU_RED_LED_GPIO);
@@ -138,6 +160,14 @@ void LEDBlinkyRoutine()
         GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
     }
 }
+
+void NOPRoutine()
+{
+    while(GetEvent() == NOP)
+    {
+    }
+}
+
 //*****************************************************************************
 //
 //! Board Initialization & Configuration
@@ -170,43 +200,6 @@ BoardInit(void)
     MAP_IntEnable(FAULT_SYSTICK);
 
     PRCMCC3200MCUInit();
-}
-
-typedef struct IntQueue {
-    // Head offset
-    int head;
-    // Tail offset
-    int tail;
-    // 0 if not full, 1 if full
-    int full;
-    int capacity;
-    int* queue;
-} IntQueue;
-
-void
-MakeQueue(IntQueue* output, int capacity)
-{
-    IntQueue queue = (IntQueue){
-        .head = 0,
-        .tail = 0,
-        .full = 0,
-        .capacity = capacity,
-        .queue = calloc(capacity, sizeof(int)),
-    };
-    memcpy(output, &queue, sizeof(IntQueue));
-}
-
-void
-FreeQueue(IntQueue* queue)
-{
-    free(queue->queue);
-    free(queue);
-}
-
-int
-Enqueue(IntQueue* queue, int x)
-{
-    if (queue)
 }
 
 //****************************************************************************
@@ -243,7 +236,11 @@ main()
             "Push SW2 to blink LEDs on and off\r\n\n"
             "****************************************************");
 
-    LEDBlinkyRoutine();
+    while(1)
+    {
+        NOPRoutine();
+    }
+
     return 0;
 }
 
