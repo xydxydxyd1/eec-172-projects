@@ -53,6 +53,7 @@
 
 // Standard includes
 #include <stdio.h>
+#include <stdlib.h>
 
 // Driverlib includes
 #include "hw_types.h"
@@ -123,10 +124,6 @@ void LEDBlinkyRoutine()
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
     while(1)
     {
-        //
-        // Alternately toggle hi-low each of the GPIOs
-        // to switch the corresponding LED on/off.
-        //
         MAP_UtilsDelay(8000000);
         GPIO_IF_LedOn(MCU_RED_LED_GPIO);
         MAP_UtilsDelay(8000000);
@@ -140,7 +137,6 @@ void LEDBlinkyRoutine()
         MAP_UtilsDelay(8000000);
         GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
     }
-
 }
 //*****************************************************************************
 //
@@ -176,41 +172,41 @@ BoardInit(void)
     PRCMCC3200MCUInit();
 }
 
-//****************************************************************************
-//
-//! A function pointer that returns 0 if success and 1 if failed
-//
-//****************************************************************************
-typedef int(*Routine)(void);
+typedef struct IntQueue {
+    // Head offset
+    int head;
+    // Tail offset
+    int tail;
+    // 0 if not full, 1 if full
+    int full;
+    int capacity;
+    int* queue;
+} IntQueue;
 
-//****************************************************************************
-//
-//! Blink routine
-//!
-//! \param none
-//!
-//! \return 0
-//
-//****************************************************************************
-int
-blink()
+void
+MakeQueue(IntQueue* output, int capacity)
 {
-
+    IntQueue queue = (IntQueue){
+        .head = 0,
+        .tail = 0,
+        .full = 0,
+        .capacity = capacity,
+        .queue = calloc(capacity, sizeof(int)),
+    };
+    memcpy(output, &queue, sizeof(IntQueue));
 }
 
-//****************************************************************************
-//
-//! Update function run every main loop.
-//!
-//! \param none
-//!
-//! \return 0 if main loop should continue, 1 if exit.
-//
-//****************************************************************************
-int
-update()
+void
+FreeQueue(IntQueue* queue)
 {
-    return 1;
+    free(queue->queue);
+    free(queue);
+}
+
+int
+Enqueue(IntQueue* queue, int x)
+{
+    if (queue)
 }
 
 //****************************************************************************
