@@ -139,21 +139,14 @@ Event GetEvent()
 void LEDBlinkyRoutine()
 {
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
+    int delay = 1000000;
     Event event = NOP;
     for (; event == NOP || event == BLINKY; event = GetEvent())
     {
-        MAP_UtilsDelay(8000000);
-        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-        MAP_UtilsDelay(8000000);
-        GPIO_IF_LedOff(MCU_RED_LED_GPIO);
-        MAP_UtilsDelay(8000000);
-        GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
-        MAP_UtilsDelay(8000000);
-        GPIO_IF_LedOff(MCU_ORANGE_LED_GPIO);
-        MAP_UtilsDelay(8000000);
-        GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
-        MAP_UtilsDelay(8000000);
-        GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
+        MAP_UtilsDelay(delay);
+        GPIO_IF_LedOn(MCU_ALL_LED_IND);
+        MAP_UtilsDelay(delay);
+        GPIO_IF_LedOff(MCU_ALL_LED_IND);
     }
 }
 
