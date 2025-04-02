@@ -70,9 +70,8 @@
 
 // Common interface includes
 #include "gpio_if.h"
-#include "uart_if.h"
 
-#include "pin_mux_config.h"
+#include "pinmux.h"
 
 #define APPLICATION_VERSION     "1.4.0"
 
@@ -175,44 +174,6 @@ BoardInit(void)
 
     PRCMCC3200MCUInit();
 }
-
-//****************************************************************************
-//
-//! A function pointer that returns 0 if success and 1 if failed
-//
-//****************************************************************************
-typedef int(*Routine)(void);
-
-//****************************************************************************
-//
-//! Blink routine
-//!
-//! \param none
-//!
-//! \return 0
-//
-//****************************************************************************
-int
-blink()
-{
-
-}
-
-//****************************************************************************
-//
-//! Update function run every main loop.
-//!
-//! \param none
-//!
-//! \return 0 if main loop should continue, 1 if exit.
-//
-//****************************************************************************
-int
-update()
-{
-    return 1;
-}
-
 //****************************************************************************
 //
 //! Main function
@@ -228,25 +189,23 @@ update()
 int
 main()
 {
+    //
+    // Initialize Board configurations
+    //
     BoardInit();
-    InitTerm();
     
+    //
     // Power on the corresponding GPIO port B for 9,10,11.
     // Set up the GPIO lines to mode 0 (GPIO)
+    //
     PinMuxConfig();
     GPIO_IF_LedConfigure(LED1|LED2|LED3);
 
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
     
-    ClearTerm();
-    Message("****************************************************\r\n\n"
-            "CC3200 GPIO Application\r\n\n"
-            "****************************************************\r\n\n"
-            "****************************************************\r\n\n"
-            "Push SW3 to start LED binary counting\r\n\n"
-            "Push SW2 to blink LEDs on and off\r\n\n"
-            "****************************************************");
-
+    //
+    // Start the LEDBlinkyRoutine
+    //
     LEDBlinkyRoutine();
     return 0;
 }
