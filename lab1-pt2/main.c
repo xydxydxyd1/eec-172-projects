@@ -124,13 +124,13 @@ Event GetEvent()
 {
     unsigned char ucSWStatus = GPIO_IF_Get(GPIO_SW2, g_uiSW2Port, g_ucSW2Pin);
     if (ucSWStatus > 0) {
-        Message("Selecting BLINKY\r\n");
+        Message("SW2 Pressed\r\n");
         current_routine = LEDBlinkyRoutine;
         return BLINKY;
     }
     ucSWStatus = GPIO_IF_Get(GPIO_SW3, g_uiSW3Port, g_ucSW3Pin);
     if (ucSWStatus > 0) {
-        Message("Selecting COUNT\r\n");
+        Message("SW3 Pressed\r\n");
         current_routine = CountRoutine;
         return COUNT;
     }
@@ -188,7 +188,6 @@ void NOPRoutine()
     Event event = NOP;
     for (; event == NOP; event = GetEvent())
     {
-        Message("NOP\r\n");
     }
 }
 
@@ -265,7 +264,7 @@ main()
             "****************************************************\r\n\n"
             "Push SW3 to start LED binary counting\r\n\n"
             "Push SW2 to blink LEDs on and off\r\n\n"
-            "****************************************************");
+            "****************************************************\r\n\n");
 
     current_routine = NOPRoutine;
     while(1)
