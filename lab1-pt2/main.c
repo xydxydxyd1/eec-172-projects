@@ -126,6 +126,14 @@ static void BoardInit(void);
 //*****************************************************************************
 Event GetEvent()
 {
+    unsigned char ucSWStatus = GPIO_IF_Get(GPIO_SW2, g_uiSW2Port, g_ucSW2Pin);
+    if (ucSWStatus > 0) {
+        return BLINKY;
+    }
+    ucSWStatus = GPIO_IF_Get(GPIO_SW3, g_uiSW3Port, g_ucSW3Pin);
+    if (ucSWStatus > 0) {
+        return COUNT;
+    }
     return NOP;
 }
 
