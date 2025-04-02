@@ -93,7 +93,7 @@ unsigned char g_ucSW2Pin,g_ucSW3Pin;
 #define GPIO_SW2 22
 #define GPIO_SW3 13
 
-void (*current_routine);
+void (*current_routine)(void);
 typedef enum
 {
     NOP,
@@ -108,6 +108,10 @@ typedef enum
 //*****************************************************************************
 //                      LOCAL FUNCTION PROTOTYPES                           
 //*****************************************************************************
+Event GetEvent();
+void CountRoutine();
+void NOPRoutine();
+
 void LEDBlinkyRoutine();
 static void BoardInit(void);
 
@@ -115,50 +119,28 @@ static void BoardInit(void);
 //                      LOCAL FUNCTION DEFINITIONS                         
 //*****************************************************************************
 
-//*****************************************************************************
-//
-//! If no event message receive, return 0. Otherwise, return event.
-//!
-//! \param None
-//!
-//! \return Event code
-//
-//*****************************************************************************
 Event GetEvent()
 {
     unsigned char ucSWStatus = GPIO_IF_Get(GPIO_SW2, g_uiSW2Port, g_ucSW2Pin);
     if (ucSWStatus > 0) {
+        Message("Selecting BLINKY\r\n");
+        current_routine = LEDBlinkyRoutine;
         return BLINKY;
     }
     ucSWStatus = GPIO_IF_Get(GPIO_SW3, g_uiSW3Port, g_ucSW3Pin);
     if (ucSWStatus > 0) {
+        Message("Selecting COUNT\r\n");
+        current_routine = CountRoutine;
         return COUNT;
     }
     return NOP;
 }
 
-//*****************************************************************************
-//
-//! Configures the pins as GPIOs and peroidically toggles the lines
-//!
-//! \param None
-//! 
-//! This function  
-//!    1. Configures 3 lines connected to LEDs as GPIO
-//!    2. Sets up the GPIO pins as output
-//!    3. Periodically toggles each LED one by one by toggling the GPIO line
-//!
-//! \return None
-//
-//*****************************************************************************
 void LEDBlinkyRoutine()
 {
-    //
-    // Toggle the lines initially to turn off the LEDs.
-    // The values driven are as required by the LEDs on the LP.
-    //
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
-    while(GetEvent() == NOP)
+    Event event = NOP;
+    for (; event == NOP || event == BLINKY; event = GetEvent())
     {
         MAP_UtilsDelay(8000000);
         GPIO_IF_LedOn(MCU_RED_LED_GPIO);
@@ -175,10 +157,21 @@ void LEDBlinkyRoutine()
     }
 }
 
+void CountRoutine()
+{
+    Event event = NOP;
+    for (; event == NOP || event == COUNT; event = GetEvent())
+    {
+        Message("COUNT\r\n");
+    }
+}
+
 void NOPRoutine()
 {
-    while(GetEvent() == NOP)
+    Event event = NOP;
+    for (; event == NOP; event = GetEvent())
     {
+        Message("NOP\r\n");
     }
 }
 
@@ -257,9 +250,10 @@ main()
             "Push SW2 to blink LEDs on and off\r\n\n"
             "****************************************************");
 
+    current_routine = NOPRoutine;
     while(1)
     {
-        NOPRoutine();
+        current_routine();
     }
 
     return 0;
