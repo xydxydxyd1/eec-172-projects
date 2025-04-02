@@ -87,6 +87,12 @@ extern void (* const g_pfnVectors[])(void);
 extern uVectorEntry __vector_table;
 #endif
 
+unsigned int g_uiSW2Port = 0,g_uiSW3Port = 0;
+unsigned char g_ucSW2Pin,g_ucSW3Pin;
+
+#define GPIO_SW2 22
+#define GPIO_SW3 13
+
 void (*current_routine);
 typedef enum
 {
@@ -224,6 +230,13 @@ main()
     // Set up the GPIO lines to mode 0 (GPIO)
     PinMuxConfig();
     GPIO_IF_LedConfigure(LED1|LED2|LED3);
+    // Set up the GPIO for switches
+    GPIO_IF_GetPortNPin(GPIO_SW2,
+                        &g_uiSW2Port,
+                        &g_ucSW2Pin);
+    GPIO_IF_GetPortNPin(GPIO_SW3,
+                        &g_uiSW3Port,
+                        &g_ucSW3Pin);
 
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
     
