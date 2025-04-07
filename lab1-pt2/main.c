@@ -92,6 +92,11 @@ unsigned char g_ucSW2Pin,g_ucSW3Pin;
 
 #define GPIO_SW2 22
 #define GPIO_SW3 13
+
+unsigned int g_ui28Port = 0;
+unsigned char g_uc28Pin;
+#define GPIO_28 28
+
 #define FRAME_DELAY 5000000
 
 void (*current_routine)(void);
@@ -241,7 +246,6 @@ int
 main()
 {
     BoardInit();
-    InitTerm();
     
     // Power on the corresponding GPIO port B for 9,10,11.
     // Set up the GPIO lines to mode 0 (GPIO)
@@ -256,7 +260,8 @@ main()
                         &g_ucSW3Pin);
 
     GPIO_IF_LedOff(MCU_ALL_LED_IND);
-    
+
+    InitTerm();
     ClearTerm();
     Message("****************************************************\r\n\n"
             "CC3200 GPIO Application\r\n\n"
